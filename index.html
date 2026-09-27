@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Калькулятор вклада</title>
-  <meta name="description" content="Калькулятор доходности вклада с ежедневной капитализацией">
+  <meta
+    name="description"
+    content="Калькулятор доходности вклада с ежедневной капитализацией"
+  >
 
   <style>
     :root {
@@ -56,8 +59,6 @@
       margin: 0 auto;
       padding: 38px 0 50px;
     }
-
-    /* Header */
 
     header {
       display: flex;
@@ -117,8 +118,6 @@
       white-space: nowrap;
     }
 
-    /* Card */
-
     .card {
       background: var(--card);
       border: 1px solid rgba(100, 90, 75, 0.08);
@@ -130,8 +129,6 @@
     .calculator {
       padding: clamp(22px, 5vw, 36px);
     }
-
-    /* Form */
 
     .fields {
       display: grid;
@@ -156,7 +153,8 @@
       position: relative;
     }
 
-    input {
+    input,
+    select {
       width: 100%;
       height: 54px;
       border: 1px solid var(--border);
@@ -164,7 +162,7 @@
       outline: none;
       background: var(--input);
       color: var(--text);
-      padding: 0 48px 0 16px;
+      padding: 0 16px;
       font-family: inherit;
       font-size: 17px;
       transition:
@@ -173,11 +171,17 @@
         background 0.2s ease;
     }
 
-    input:hover {
+    input.has-suffix {
+      padding-right: 48px;
+    }
+
+    input:hover,
+    select:hover {
       background: var(--card);
     }
 
-    input:focus {
+    input:focus,
+    select:focus {
       background: var(--card);
       border-color: #b9afa0;
       box-shadow: 0 0 0 4px rgba(116, 107, 93, 0.08);
@@ -193,18 +197,12 @@
       pointer-events: none;
     }
 
-    .date-input {
-      padding-right: 16px;
-    }
-
     .hint {
       margin-top: 7px;
       color: var(--muted);
       font-size: 11px;
       line-height: 1.4;
     }
-
-    /* Result */
 
     .result {
       margin-top: 26px;
@@ -260,8 +258,6 @@
       font-size: 14px;
     }
 
-    /* Details */
-
     .details {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -294,8 +290,6 @@
       white-space: nowrap;
     }
 
-    /* Information */
-
     .info {
       margin-top: 20px;
       color: var(--muted);
@@ -318,8 +312,6 @@
       color: var(--muted);
       font-size: 11px;
     }
-
-    /* Mobile */
 
     @media (max-width: 600px) {
       .page {
@@ -372,7 +364,6 @@
   <main class="page">
 
     <header>
-
       <div class="brand">
         <div class="eyebrow">Personal finance</div>
         <h1>Доход вклада</h1>
@@ -383,9 +374,7 @@
         <div id="moscowTime">--:--:--</div>
         <div id="moscowDate">--</div>
       </div>
-
     </header>
-
 
     <section class="card">
 
@@ -393,18 +382,13 @@
 
         <div class="fields">
 
-          <!-- Сумма -->
-
           <div class="field">
-
-            <label for="amount">
-              Сумма вклада
-            </label>
+            <label for="amount">Сумма вклада</label>
 
             <div class="input-wrap">
-
               <input
                 id="amount"
+                class="has-suffix"
                 type="number"
                 inputmode="decimal"
                 min="0"
@@ -414,24 +398,16 @@
               >
 
               <span class="suffix">₽</span>
-
             </div>
-
           </div>
 
-
-          <!-- Ставка -->
-
           <div class="field">
-
-            <label for="rate">
-              Годовая ставка
-            </label>
+            <label for="rate">Годовая ставка</label>
 
             <div class="input-wrap">
-
               <input
                 id="rate"
+                class="has-suffix"
                 type="number"
                 inputmode="decimal"
                 min="0"
@@ -441,40 +417,47 @@
               >
 
               <span class="suffix">%</span>
-
             </div>
-
           </div>
 
+          <div class="field full">
+            <label for="rateType">Тип ставки</label>
 
-          <!-- Дата -->
+            <select id="rateType">
+              <option value="effective">
+                Эффективная годовая ставка
+              </option>
+
+              <option value="nominal">
+                Номинальная ставка + ежедневная капитализация
+              </option>
+            </select>
+
+            <div class="hint" id="rateHint">
+              15% означает итоговый рост на 15% за полный год.
+              Ежедневная капитализация распределяет этот рост по дням.
+            </div>
+          </div>
 
           <div class="field full">
-
             <label for="startDate">
               Дата открытия вклада
             </label>
 
             <div class="input-wrap">
-
               <input
                 id="startDate"
                 class="date-input"
                 type="date"
               >
-
             </div>
 
             <div class="hint">
               Расчёт выполняется до текущей даты по московскому времени.
             </div>
-
           </div>
 
         </div>
-
-
-        <!-- Результат -->
 
         <div class="result">
 
@@ -486,40 +469,21 @@
             class="total"
             aria-live="polite"
           >
-
-            <span id="total">
-              100 000,00
-            </span>
-
-            <span class="total-currency">
-              ₽
-            </span>
-
+            <span id="total">100 000,00</span>
+            <span class="total-currency">₽</span>
           </div>
 
-
           <div class="income">
-
             Доход:
-
-            <span id="income">
-              0,00 ₽
-            </span>
-
+            <span id="income">0,00 ₽</span>
           </div>
 
         </div>
 
-
-        <!-- Детали -->
-
         <div class="details">
 
           <div class="detail">
-
-            <div class="detail-label">
-              Вложено
-            </div>
+            <div class="detail-label">Вложено</div>
 
             <div
               class="detail-value"
@@ -527,15 +491,10 @@
             >
               100 000 ₽
             </div>
-
           </div>
 
-
           <div class="detail">
-
-            <div class="detail-label">
-              Прошло дней
-            </div>
+            <div class="detail-label">Прошло дней</div>
 
             <div
               class="detail-value"
@@ -543,15 +502,10 @@
             >
               0
             </div>
-
           </div>
 
-
           <div class="detail">
-
-            <div class="detail-label">
-              Ставка
-            </div>
+            <div class="detail-label">Ставка</div>
 
             <div
               class="detail-value"
@@ -559,11 +513,9 @@
             >
               15%
             </div>
-
           </div>
 
         </div>
-
 
         <div
           class="status"
@@ -571,26 +523,14 @@
           aria-live="polite"
         ></div>
 
-
-        <div class="info">
-
-          Ежедневная капитализация:
-          каждый день начисленные проценты прибавляются
-          к сумме вклада и участвуют в следующем начислении.
-
-          <br>
-
-          Расчёт:
-          <strong>
-            сумма × (1 + ставка / 100 / 365) ^ дни
-          </strong>
-
+        <div class="info" id="calculationInfo">
+          При эффективной ставке расчёт учитывает фактическое количество
+          календарных дней в каждом году: 365 или 366.
         </div>
 
       </div>
 
     </section>
-
 
     <footer>
       Время отображается по часовому поясу Europe/Moscow
@@ -609,19 +549,7 @@
 
     const MOSCOW_TIMEZONE = "Europe/Moscow";
 
-    /*
-     * Номинальная годовая ставка.
-     *
-     * При ежедневной капитализации:
-     *
-     * A = P × (1 + r / 365)^n
-     *
-     * где:
-     *
-     * P = первоначальная сумма
-     * r = годовая ставка в десятичном виде
-     * n = количество дней
-     */
+    const DAY_MS = 24 * 60 * 60 * 1000;
 
 
     /*
@@ -635,6 +563,9 @@
 
     const rateInput =
       document.getElementById("rate");
+
+    const rateTypeInput =
+      document.getElementById("rateType");
 
     const startDateInput =
       document.getElementById("startDate");
@@ -663,6 +594,12 @@
     const moscowDateElement =
       document.getElementById("moscowDate");
 
+    const rateHintElement =
+      document.getElementById("rateHint");
+
+    const calculationInfoElement =
+      document.getElementById("calculationInfo");
+
 
     /*
      * ==========================================
@@ -684,16 +621,12 @@
 
 
     function formatMoney(value) {
-
       return moneyFormatter.format(value);
-
     }
 
 
     function formatRubles(value) {
-
       return formatMoney(value) + " ₽";
-
     }
 
 
@@ -706,7 +639,6 @@
     function updateMoscowClock() {
 
       const now = new Date();
-
 
       const time =
         new Intl.DateTimeFormat("ru-RU", {
@@ -734,12 +666,8 @@
         }).format(now);
 
 
-      moscowTimeElement.textContent =
-        time;
-
-      moscowDateElement.textContent =
-        date;
-
+      moscowTimeElement.textContent = time;
+      moscowDateElement.textContent = date;
     }
 
 
@@ -752,7 +680,6 @@
     function getMoscowDateString() {
 
       const now = new Date();
-
 
       const parts =
         new Intl.DateTimeFormat("en-CA", {
@@ -768,14 +695,10 @@
 
       const result = {};
 
-
       for (const part of parts) {
 
         if (part.type !== "literal") {
-
-          result[part.type] =
-            part.value;
-
+          result[part.type] = part.value;
         }
 
       }
@@ -788,15 +711,78 @@
         "-" +
         result.day
       );
-
     }
 
 
     /*
      * ==========================================
-     * КОЛИЧЕСТВО ПОЛНЫХ ДНЕЙ
+     * РАБОТА С КАЛЕНДАРНЫМИ ДАТАМИ
      * ==========================================
+     *
+     * Все даты здесь трактуются как UTC-полночь.
+     * Это специально сделано для того, чтобы
+     * локальный часовой пояс браузера не влиял
+     * на количество календарных дней.
      */
+
+    function parseDate(dateString) {
+
+      const [year, month, day] =
+        dateString
+          .split("-")
+          .map(Number);
+
+
+      return new Date(
+        Date.UTC(
+          year,
+          month - 1,
+          day
+        )
+      );
+    }
+
+
+    function formatDateUTC(date) {
+
+      const year =
+        date.getUTCFullYear();
+
+
+      const month =
+        String(
+          date.getUTCMonth() + 1
+        ).padStart(2, "0");
+
+
+      const day =
+        String(
+          date.getUTCDate()
+        ).padStart(2, "0");
+
+
+      return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+      );
+    }
+
+
+    function addDays(date, days) {
+
+      const result =
+        new Date(date.getTime());
+
+      result.setUTCDate(
+        result.getUTCDate() + days
+      );
+
+      return result;
+    }
+
 
     function getDaysBetween(
       startDateString,
@@ -804,32 +790,218 @@
     ) {
 
       const start =
-        new Date(
-          startDateString + "T00:00:00Z"
-        );
+        parseDate(startDateString);
 
       const end =
-        new Date(
-          endDateString + "T00:00:00Z"
-        );
+        parseDate(endDateString);
 
 
-      const difference =
-        end.getTime() -
-        start.getTime();
-
-
-      return Math.floor(
-        difference /
-        (1000 * 60 * 60 * 24)
+      return Math.round(
+        (
+          end.getTime() -
+          start.getTime()
+        ) / DAY_MS
       );
-
     }
 
 
     /*
      * ==========================================
-     * РАСЧЁТ ВКЛАДА
+     * ВИСОКОСНЫЙ ГОД
+     * ==========================================
+     */
+
+    function isLeapYear(year) {
+
+      return (
+        year % 400 === 0 ||
+        (
+          year % 4 === 0 &&
+          year % 100 !== 0
+        )
+      );
+    }
+
+
+    function daysInYear(year) {
+
+      return isLeapYear(year)
+        ? 366
+        : 365;
+    }
+
+
+    /*
+     * ==========================================
+     * ДНЕВНАЯ СТАВКА
+     * ==========================================
+     *
+     * effective:
+     *
+     * Введённые 15% означают именно
+     * эффективные 15% годовых.
+     *
+     * Для года:
+     *
+     * (1 + dailyRate)^365 = 1 + annualRate
+     *
+     * Поэтому:
+     *
+     * dailyRate =
+     * (1 + annualRate)^(1 / 365) - 1
+     *
+     * Для високосного года используется 366.
+     *
+     *
+     * nominal:
+     *
+     * Введённые 15% являются номинальной
+     * годовой ставкой.
+     *
+     * Начисление за каждый день:
+     *
+     * nominalRate / daysInYear
+     */
+
+    function getDailyRate(
+      annualRate,
+      year,
+      rateType
+    ) {
+
+      const days =
+        daysInYear(year);
+
+
+      if (rateType === "effective") {
+
+        return Math.pow(
+          1 + annualRate,
+          1 / days
+        ) - 1;
+
+      }
+
+
+      return annualRate / days;
+    }
+
+
+    /*
+     * ==========================================
+     * ТОЧНЫЙ РАСЧЁТ
+     * ==========================================
+     *
+     * Расчёт выполняется отдельно
+     * для каждого календарного дня.
+     *
+     * Например:
+     *
+     * 2027 -> 365 дней
+     * 2028 -> 366 дней
+     * 2029 -> 365 дней
+     *
+     * Проценты после каждого дня
+     * добавляются к телу вклада.
+     */
+
+    function calculateDeposit(
+      amount,
+      rate,
+      startDateString,
+      endDateString,
+      rateType
+    ) {
+
+      let balance = amount;
+
+      let current =
+        parseDate(startDateString);
+
+      const end =
+        parseDate(endDateString);
+
+
+      let days = 0;
+
+
+      while (
+        current.getTime() <
+        end.getTime()
+      ) {
+
+        const year =
+          current.getUTCFullYear();
+
+
+        const dailyRate =
+          getDailyRate(
+            rate,
+            year,
+            rateType
+          );
+
+
+        balance *=
+          1 + dailyRate;
+
+
+        current =
+          addDays(current, 1);
+
+
+        days++;
+      }
+
+
+      return {
+        total: balance,
+        income: balance - amount,
+        days
+      };
+    }
+
+
+    /*
+     * ==========================================
+     * ТЕКСТОВЫЕ ПОДСКАЗКИ
+     * ==========================================
+     */
+
+    function updateRateDescription() {
+
+      if (
+        rateTypeInput.value ===
+        "effective"
+      ) {
+
+        rateHintElement.textContent =
+          "Введённая ставка — эффективная годовая доходность. " +
+          "Например, 15% означает 15% роста за полный год.";
+
+        calculationInfoElement.innerHTML =
+          "Для каждого календарного года используется 365 или 366 дней. " +
+          "Ежедневная ставка подбирается так, чтобы полный обычный год " +
+          "соответствовал указанной эффективной доходности.";
+
+        return;
+      }
+
+
+      rateHintElement.textContent =
+        "Введённая ставка — номинальная годовая. " +
+        "Проценты ежедневно начисляются по ставке годовая ставка / 365 или / 366.";
+
+      calculationInfoElement.innerHTML =
+        "Номинальная ставка распределяется по фактическим дням каждого года: " +
+        "365 в обычном году и 366 в високосном. " +
+        "После каждого дня проценты капитализируются.";
+    }
+
+
+    /*
+     * ==========================================
+     * РАСЧЁТ И ОТОБРАЖЕНИЕ
      * ==========================================
      */
 
@@ -843,6 +1015,9 @@
 
       const startDate =
         startDateInput.value;
+
+      const rateType =
+        rateTypeInput.value;
 
 
       statusElement.textContent = "";
@@ -861,7 +1036,6 @@
         incomeElement.textContent = "—";
 
         return;
-
       }
 
 
@@ -878,7 +1052,6 @@
         incomeElement.textContent = "—";
 
         return;
-
       }
 
 
@@ -894,8 +1067,10 @@
         incomeElement.textContent =
           "—";
 
-        return;
+        daysElement.textContent =
+          "0";
 
+        return;
       }
 
 
@@ -908,7 +1083,7 @@
 
 
       /*
-       * Количество дней
+       * Количество календарных дней
        */
 
       const days =
@@ -919,8 +1094,7 @@
 
 
       /*
-       * Нельзя открыть вклад
-       * в будущем.
+       * Будущая дата
        */
 
       if (days < 0) {
@@ -938,42 +1112,21 @@
           "Дата открытия не может быть позже текущей даты.";
 
         return;
-
       }
 
 
       /*
-       * ========================================
-       * ЕЖЕДНЕВНАЯ КАПИТАЛИЗАЦИЯ
-       * ========================================
-       *
-       * P = начальная сумма
-       *
-       * r = годовая ставка / 100
-       *
-       * n = количество дней
-       *
-       * A = P × (1 + r / 365)^n
+       * Расчёт
        */
 
-      const annualRate =
-        rate / 100;
-
-
-      const dailyRate =
-        annualRate / 365;
-
-
-      const total =
-        amount *
-        Math.pow(
-          1 + dailyRate,
-          days
+      const result =
+        calculateDeposit(
+          amount,
+          rate / 100,
+          startDate,
+          today,
+          rateType
         );
-
-
-      const income =
-        total - amount;
 
 
       /*
@@ -981,11 +1134,11 @@
        */
 
       totalElement.textContent =
-        formatMoney(total);
+        formatMoney(result.total);
 
 
       incomeElement.textContent =
-        formatRubles(income);
+        formatRubles(result.income);
 
 
       detailAmountElement.textContent =
@@ -998,8 +1151,7 @@
 
 
       daysElement.textContent =
-        integerFormatter.format(days);
-
+        integerFormatter.format(result.days);
     }
 
 
@@ -1012,21 +1164,21 @@
     function initialize() {
 
       /*
-       * По умолчанию ставим
-       * сегодняшнюю дату Москвы.
+       * По умолчанию:
+       * сегодняшняя дата Москвы.
        */
 
       startDateInput.value =
         getMoscowDateString();
 
 
+      updateRateDescription();
       updateMoscowClock();
-
       calculate();
 
 
       /*
-       * Часы обновляются каждую секунду.
+       * Часы.
        */
 
       setInterval(
@@ -1036,19 +1188,18 @@
 
 
       /*
-       * Расчёт тоже обновляется
-       * каждую секунду.
+       * Пересчёт нужен прежде всего
+       * при смене календарного дня.
        *
-       * Сам размер вклада меняется
-       * только при наступлении нового
-       * календарного дня.
+       * Оставляем обновление раз в секунду,
+       * чтобы после полуночи результат
+       * обновился автоматически.
        */
 
       setInterval(
         calculate,
         1000
       );
-
     }
 
 
@@ -1070,6 +1221,17 @@
     );
 
 
+    rateTypeInput.addEventListener(
+      "change",
+      () => {
+
+        updateRateDescription();
+        calculate();
+
+      }
+    );
+
+
     startDateInput.addEventListener(
       "input",
       calculate
@@ -1083,7 +1245,9 @@
 
 
     /*
-     * Запуск
+     * ==========================================
+     * ЗАПУСК
+     * ==========================================
      */
 
     initialize();

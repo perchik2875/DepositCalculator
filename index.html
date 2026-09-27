@@ -1,1259 +1,677 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Калькулятор вклада</title>
-  <meta
-    name="description"
-    content="Калькулятор доходности вклада с ежедневной капитализацией"
-  >
+    <title>Калькулятор вклада</title>
 
-  <style>
-    :root {
-      --bg: #f3eee6;
-      --card: #fffdf9;
-      --input: #faf7f1;
-      --text: #292621;
-      --muted: #8b857b;
-      --border: #e4ddd2;
-      --accent: #746b5d;
-      --soft: #eee7dc;
-      --success: #536b58;
-      --error: #a05d52;
-      --shadow: 0 18px 50px rgba(60, 50, 38, 0.08);
-      --radius: 22px;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    * {
-      box-sizing: border-box;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f3eee6;
+            color: #292723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(
-          circle at top left,
-          rgba(255, 255, 255, 0.75),
-          transparent 35%
-        ),
-        var(--bg);
-      color: var(--text);
-      font-family:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
+        .calculator {
+            width: 100%;
+            max-width: 520px;
+            background: #fffdf9;
+            border: 1px solid #ded7cc;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+        }
 
-    .page {
-      width: min(100% - 32px, 760px);
-      margin: 0 auto;
-      padding: 38px 0 50px;
-    }
+        h1 {
+            margin: 0 0 8px;
+            font-size: 28px;
+            font-weight: 600;
+        }
 
-    header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 24px;
-      margin-bottom: 28px;
-    }
+        .subtitle {
+            color: #77716a;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
 
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
+        .clock {
+            background: #f5f1eb;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            color: #625c55;
+        }
 
-    .eyebrow {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
+        .field {
+            margin-bottom: 18px;
+        }
 
-    h1 {
-      margin: 0;
-      font-size: clamp(30px, 6vw, 46px);
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-      font-weight: 650;
-    }
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            color: #625c55;
+        }
 
-    .clock {
-      flex-shrink: 0;
-      text-align: right;
-      padding-top: 4px;
-    }
+        input,
+        select {
+            width: 100%;
+            border: 1px solid #d8d0c5;
+            border-radius: 10px;
+            padding: 12px 13px;
+            background: #fff;
+            color: #292723;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
 
-    .clock-label {
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 5px;
-    }
+        input:focus,
+        select:focus {
+            border-color: #9b9184;
+        }
 
-    #moscowTime {
-      font-variant-numeric: tabular-nums;
-      font-size: 17px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
+        button {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 13px;
+            background: #292723;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
 
-    #moscowDate {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
+        button:hover {
+            opacity: 0.9;
+        }
 
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(100, 90, 75, 0.08);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
+        .result {
+            margin-top: 24px;
+            border-top: 1px solid #e4ddd3;
+            padding-top: 22px;
+        }
 
-    .calculator {
-      padding: clamp(22px, 5vw, 36px);
-    }
+        .result-main {
+            background: #f5f1eb;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
 
-    .fields {
-      display: grid;
-      grid-template-columns: 1.3fr 1fr;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
+        .result-label {
+            font-size: 13px;
+            color: #77716a;
+            margin-bottom: 6px;
+        }
 
-    .field.full {
-      grid-column: 1 / -1;
-    }
+        .result-value {
+            font-size: 30px;
+            font-weight: 600;
+        }
 
-    label {
-      display: block;
-      margin-bottom: 8px;
-      color: #615b53;
-      font-size: 13px;
-      font-weight: 600;
-    }
+        .details {
+            display: grid;
+            gap: 10px;
+        }
 
-    .input-wrap {
-      position: relative;
-    }
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            font-size: 14px;
+        }
 
-    input,
-    select {
-      width: 100%;
-      height: 54px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      outline: none;
-      background: var(--input);
-      color: var(--text);
-      padding: 0 16px;
-      font-family: inherit;
-      font-size: 17px;
-      transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-    }
+        .detail span:first-child {
+            color: #77716a;
+        }
 
-    input.has-suffix {
-      padding-right: 48px;
-    }
+        .detail span:last-child {
+            font-weight: 500;
+            text-align: right;
+        }
 
-    input:hover,
-    select:hover {
-      background: var(--card);
-    }
+        .error {
+            margin-top: 15px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #f7e8e5;
+            color: #9a4438;
+            font-size: 14px;
+            display: none;
+        }
 
-    input:focus,
-    select:focus {
-      background: var(--card);
-      border-color: #b9afa0;
-      box-shadow: 0 0 0 4px rgba(116, 107, 93, 0.08);
-    }
+        @media (max-width: 520px) {
+            .calculator {
+                padding: 22px;
+            }
 
-    .suffix {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      font-size: 14px;
-      pointer-events: none;
-    }
+            h1 {
+                font-size: 24px;
+            }
 
-    .hint {
-      margin-top: 7px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    .result {
-      margin-top: 26px;
-      padding: 25px;
-      border-radius: 18px;
-      background: var(--soft);
-    }
-
-    .result-label {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .total {
-      margin-top: 6px;
-      font-size: clamp(35px, 8vw, 56px);
-      line-height: 1;
-      letter-spacing: -0.045em;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      overflow-wrap: anywhere;
-    }
-
-    .total-currency {
-      font-size: 0.48em;
-      font-weight: 600;
-      color: #71695e;
-      letter-spacing: -0.02em;
-    }
-
-    .income {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      margin-top: 12px;
-      color: var(--success);
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .income::before {
-      content: "+";
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: rgba(83, 107, 88, 0.12);
-      font-size: 14px;
-    }
-
-    .details {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      margin-top: 18px;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      overflow: hidden;
-      background: var(--border);
-    }
-
-    .detail {
-      min-width: 0;
-      background: var(--card);
-      padding: 15px;
-    }
-
-    .detail-label {
-      color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 5px;
-    }
-
-    .detail-value {
-      font-size: 14px;
-      font-weight: 650;
-      font-variant-numeric: tabular-nums;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .info {
-      margin-top: 20px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    .status {
-      min-height: 18px;
-      margin-top: 10px;
-      color: var(--error);
-      font-size: 12px;
-      text-align: center;
-    }
-
-    footer {
-      margin-top: 22px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    @media (max-width: 600px) {
-      .page {
-        width: min(100% - 20px, 760px);
-        padding-top: 22px;
-      }
-
-      header {
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .clock {
-        width: 100%;
-        text-align: left;
-      }
-
-      .fields {
-        grid-template-columns: 1fr;
-      }
-
-      .field.full {
-        grid-column: auto;
-      }
-
-      .details {
-        grid-template-columns: 1fr;
-      }
-
-      .detail {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-      }
-
-      .detail-label {
-        margin-bottom: 0;
-      }
-
-      .detail-value {
-        text-align: right;
-      }
-    }
-  </style>
+            .result-value {
+                font-size: 26px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <main class="page">
+<div class="calculator">
 
-    <header>
-      <div class="brand">
-        <div class="eyebrow">Personal finance</div>
-        <h1>Доход вклада</h1>
-      </div>
+    <h1>Калькулятор вклада</h1>
 
-      <div class="clock">
-        <div class="clock-label">Москва</div>
-        <div id="moscowTime">--:--:--</div>
-        <div id="moscowDate">--</div>
-      </div>
-    </header>
+    <div class="subtitle">
+        Расчёт доходности с месячной капитализацией
+    </div>
 
-    <section class="card">
+    <div class="clock">
+        <div id="currentDate">Дата: —</div>
+        <div id="currentTime">Время: —</div>
+    </div>
 
-      <div class="calculator">
+    <div class="field">
+        <label for="amount">Сумма вклада</label>
+        <input
+            type="number"
+            id="amount"
+            value="100000"
+            min="0"
+            step="0.01"
+        >
+    </div>
 
-        <div class="fields">
+    <div class="field">
+        <label for="rate">Годовая ставка, %</label>
+        <input
+            type="number"
+            id="rate"
+            value="15"
+            min="0"
+            step="0.01"
+        >
+    </div>
 
-          <div class="field">
-            <label for="amount">Сумма вклада</label>
+    <div class="field">
+        <label for="rateType">Тип ставки</label>
 
-            <div class="input-wrap">
-              <input
-                id="amount"
-                class="has-suffix"
-                type="number"
-                inputmode="decimal"
-                min="0"
-                step="0.01"
-                value="100000"
-                placeholder="100 000"
-              >
-
-              <span class="suffix">₽</span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="rate">Годовая ставка</label>
-
-            <div class="input-wrap">
-              <input
-                id="rate"
-                class="has-suffix"
-                type="number"
-                inputmode="decimal"
-                min="0"
-                step="0.01"
-                value="15"
-                placeholder="15"
-              >
-
-              <span class="suffix">%</span>
-            </div>
-          </div>
-
-          <div class="field full">
-            <label for="rateType">Тип ставки</label>
-
-            <select id="rateType">
-              <option value="effective">
+        <select id="rateType">
+            <option value="effective">
                 Эффективная годовая ставка
-              </option>
+            </option>
 
-              <option value="nominal">
-                Номинальная ставка + ежедневная капитализация
-              </option>
-            </select>
+            <option value="nominal">
+                Номинальная ставка + месячная капитализация
+            </option>
+        </select>
+    </div>
 
-            <div class="hint" id="rateHint">
-              15% означает итоговый рост на 15% за полный год.
-              Ежедневная капитализация распределяет этот рост по дням.
+    <div class="field">
+        <label for="startDate">Дата открытия</label>
+        <input
+            type="date"
+            id="startDate"
+        >
+    </div>
+
+    <button onclick="calculateDeposit()">
+        Рассчитать
+    </button>
+
+    <div class="error" id="error"></div>
+
+    <div class="result" id="result">
+
+        <div class="result-main">
+            <div class="result-label">
+                Сумма на текущую дату
             </div>
-          </div>
 
-          <div class="field full">
-            <label for="startDate">
-              Дата открытия вклада
-            </label>
-
-            <div class="input-wrap">
-              <input
-                id="startDate"
-                class="date-input"
-                type="date"
-              >
+            <div class="result-value" id="finalAmount">
+                — ₽
             </div>
-
-            <div class="hint">
-              Расчёт выполняется до текущей даты по московскому времени.
-            </div>
-          </div>
-
-        </div>
-
-        <div class="result">
-
-          <div class="result-label">
-            Можно снять сейчас
-          </div>
-
-          <div
-            class="total"
-            aria-live="polite"
-          >
-            <span id="total">100 000,00</span>
-            <span class="total-currency">₽</span>
-          </div>
-
-          <div class="income">
-            Доход:
-            <span id="income">0,00 ₽</span>
-          </div>
-
         </div>
 
         <div class="details">
 
-          <div class="detail">
-            <div class="detail-label">Вложено</div>
-
-            <div
-              class="detail-value"
-              id="detailAmount"
-            >
-              100 000 ₽
+            <div class="detail">
+                <span>Начальная сумма</span>
+                <span id="initialAmount">—</span>
             </div>
-          </div>
 
-          <div class="detail">
-            <div class="detail-label">Прошло дней</div>
-
-            <div
-              class="detail-value"
-              id="days"
-            >
-              0
+            <div class="detail">
+                <span>Заработано</span>
+                <span id="profit">—</span>
             </div>
-          </div>
 
-          <div class="detail">
-            <div class="detail-label">Ставка</div>
-
-            <div
-              class="detail-value"
-              id="detailRate"
-            >
-              15%
+            <div class="detail">
+                <span>Годовая ставка</span>
+                <span id="displayRate">—</span>
             </div>
-          </div>
+
+            <div class="detail">
+                <span>Тип ставки</span>
+                <span id="displayRateType">—</span>
+            </div>
+
+            <div class="detail">
+                <span>Дата открытия</span>
+                <span id="displayStartDate">—</span>
+            </div>
+
+            <div class="detail">
+                <span>Прошло дней</span>
+                <span id="daysPassed">—</span>
+            </div>
+
+            <div class="detail">
+                <span>Капитализаций</span>
+                <span id="capitalizations">—</span>
+            </div>
 
         </div>
+    </div>
 
-        <div
-          class="status"
-          id="status"
-          aria-live="polite"
-        ></div>
+</div>
 
-        <div class="info" id="calculationInfo">
-          При эффективной ставке расчёт учитывает фактическое количество
-          календарных дней в каждом году: 365 или 366.
-        </div>
+<script>
+    // ==============================
+    // ЧАСЫ И ДАТА
+    // ==============================
 
-      </div>
+    function updateClock() {
+        const now = new Date();
 
-    </section>
-
-    <footer>
-      Время отображается по часовому поясу Europe/Moscow
-    </footer>
-
-  </main>
-
-
-  <script>
-
-    /*
-     * ==========================================
-     * НАСТРОЙКИ
-     * ==========================================
-     */
-
-    const MOSCOW_TIMEZONE = "Europe/Moscow";
-
-    const DAY_MS = 24 * 60 * 60 * 1000;
-
-
-    /*
-     * ==========================================
-     * ЭЛЕМЕНТЫ
-     * ==========================================
-     */
-
-    const amountInput =
-      document.getElementById("amount");
-
-    const rateInput =
-      document.getElementById("rate");
-
-    const rateTypeInput =
-      document.getElementById("rateType");
-
-    const startDateInput =
-      document.getElementById("startDate");
-
-    const totalElement =
-      document.getElementById("total");
-
-    const incomeElement =
-      document.getElementById("income");
-
-    const detailAmountElement =
-      document.getElementById("detailAmount");
-
-    const detailRateElement =
-      document.getElementById("detailRate");
-
-    const daysElement =
-      document.getElementById("days");
-
-    const statusElement =
-      document.getElementById("status");
-
-    const moscowTimeElement =
-      document.getElementById("moscowTime");
-
-    const moscowDateElement =
-      document.getElementById("moscowDate");
-
-    const rateHintElement =
-      document.getElementById("rateHint");
-
-    const calculationInfoElement =
-      document.getElementById("calculationInfo");
-
-
-    /*
-     * ==========================================
-     * ФОРМАТИРОВАНИЕ
-     * ==========================================
-     */
-
-    const moneyFormatter =
-      new Intl.NumberFormat("ru-RU", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-
-
-    const integerFormatter =
-      new Intl.NumberFormat("ru-RU", {
-        maximumFractionDigits: 0
-      });
-
-
-    function formatMoney(value) {
-      return moneyFormatter.format(value);
-    }
-
-
-    function formatRubles(value) {
-      return formatMoney(value) + " ₽";
-    }
-
-
-    /*
-     * ==========================================
-     * МОСКОВСКОЕ ВРЕМЯ
-     * ==========================================
-     */
-
-    function updateMoscowClock() {
-
-      const now = new Date();
-
-      const time =
-        new Intl.DateTimeFormat("ru-RU", {
-
-          timeZone: MOSCOW_TIMEZONE,
-
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-
-          hour12: false
-
+        const date = new Intl.DateTimeFormat('ru-RU', {
+            timeZone: 'Europe/Moscow',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         }).format(now);
 
-
-      const date =
-        new Intl.DateTimeFormat("ru-RU", {
-
-          timeZone: MOSCOW_TIMEZONE,
-
-          day: "2-digit",
-          month: "long",
-          year: "numeric"
-
+        const time = new Intl.DateTimeFormat('ru-RU', {
+            timeZone: 'Europe/Moscow',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
         }).format(now);
 
+        document.getElementById('currentDate').textContent =
+            'Дата: ' + date;
 
-      moscowTimeElement.textContent = time;
-      moscowDateElement.textContent = date;
+        document.getElementById('currentTime').textContent =
+            'Время: ' + time;
     }
 
+    updateClock();
+    setInterval(updateClock, 1000);
 
-    /*
-     * ==========================================
-     * ТЕКУЩАЯ ДАТА МОСКВЫ
-     * ==========================================
-     */
+
+    // ==============================
+    // ТЕКУЩАЯ ДАТА ПО МОСКВЕ
+    // ==============================
 
     function getMoscowDateString() {
+        const parts = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Europe/Moscow',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).formatToParts(new Date());
 
-      const now = new Date();
+        const year = parts.find(p => p.type === 'year').value;
+        const month = parts.find(p => p.type === 'month').value;
+        const day = parts.find(p => p.type === 'day').value;
 
-      const parts =
-        new Intl.DateTimeFormat("en-CA", {
-
-          timeZone: MOSCOW_TIMEZONE,
-
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit"
-
-        }).formatToParts(now);
+        return `${year}-${month}-${day}`;
+    }
 
 
-      const result = {};
+    // ==============================
+    // ДОБАВЛЕНИЕ МЕСЯЦА
+    // ==============================
 
-      for (const part of parts) {
+    /*
+        Например:
 
-        if (part.type !== "literal") {
-          result[part.type] = part.value;
+        15 января -> 15 февраля
+        15 февраля -> 15 марта
+        15 марта -> 15 апреля
+
+        Для 29/30/31 числа используется
+        последний доступный день месяца.
+    */
+
+    function getMonthlyCapitalizationDate(startDate, monthIndex) {
+        const originalDay = startDate.getUTCDate();
+
+        const firstDayOfTargetMonth = new Date(Date.UTC(
+            startDate.getUTCFullYear(),
+            startDate.getUTCMonth() + monthIndex,
+            1
+        ));
+
+        const lastDayOfTargetMonth = new Date(Date.UTC(
+            firstDayOfTargetMonth.getUTCFullYear(),
+            firstDayOfTargetMonth.getUTCMonth() + 1,
+            0
+        )).getUTCDate();
+
+        const day = Math.min(
+            originalDay,
+            lastDayOfTargetMonth
+        );
+
+        return new Date(Date.UTC(
+            firstDayOfTargetMonth.getUTCFullYear(),
+            firstDayOfTargetMonth.getUTCMonth(),
+            day
+        ));
+    }
+
+
+    // ==============================
+    // РАСЧЁТ
+    // ==============================
+
+    function calculateDeposit() {
+
+        const errorElement = document.getElementById('error');
+
+        errorElement.style.display = 'none';
+        errorElement.textContent = '';
+
+        const amount = parseFloat(
+            document.getElementById('amount').value
+        );
+
+        const annualRatePercent = parseFloat(
+            document.getElementById('rate').value
+        );
+
+        const rateType =
+            document.getElementById('rateType').value;
+
+        const startDateString =
+            document.getElementById('startDate').value;
+
+
+        // ==============================
+        // ПРОВЕРКА ДАННЫХ
+        // ==============================
+
+        if (!amount || amount <= 0) {
+            showError('Введите корректную сумму вклада.');
+            return;
         }
 
-      }
+        if (isNaN(annualRatePercent) || annualRatePercent < 0) {
+            showError('Введите корректную годовую ставку.');
+            return;
+        }
 
+        if (!startDateString) {
+            showError('Выберите дату открытия вклада.');
+            return;
+        }
 
-      return (
-        result.year +
-        "-" +
-        result.month +
-        "-" +
-        result.day
-      );
-    }
 
+        // ==============================
+        // ТЕКУЩАЯ ДАТА
+        // ==============================
 
-    /*
-     * ==========================================
-     * РАБОТА С КАЛЕНДАРНЫМИ ДАТАМИ
-     * ==========================================
-     *
-     * Все даты здесь трактуются как UTC-полночь.
-     * Это специально сделано для того, чтобы
-     * локальный часовой пояс браузера не влиял
-     * на количество календарных дней.
-     */
+        const currentDateString = getMoscowDateString();
 
-    function parseDate(dateString) {
+        const startDate = new Date(
+            startDateString + 'T00:00:00Z'
+        );
 
-      const [year, month, day] =
-        dateString
-          .split("-")
-          .map(Number);
-
-
-      return new Date(
-        Date.UTC(
-          year,
-          month - 1,
-          day
-        )
-      );
-    }
-
-
-    function formatDateUTC(date) {
-
-      const year =
-        date.getUTCFullYear();
-
-
-      const month =
-        String(
-          date.getUTCMonth() + 1
-        ).padStart(2, "0");
-
-
-      const day =
-        String(
-          date.getUTCDate()
-        ).padStart(2, "0");
-
-
-      return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day
-      );
-    }
-
-
-    function addDays(date, days) {
-
-      const result =
-        new Date(date.getTime());
-
-      result.setUTCDate(
-        result.getUTCDate() + days
-      );
-
-      return result;
-    }
-
-
-    function getDaysBetween(
-      startDateString,
-      endDateString
-    ) {
-
-      const start =
-        parseDate(startDateString);
-
-      const end =
-        parseDate(endDateString);
-
-
-      return Math.round(
-        (
-          end.getTime() -
-          start.getTime()
-        ) / DAY_MS
-      );
-    }
-
-
-    /*
-     * ==========================================
-     * ВИСОКОСНЫЙ ГОД
-     * ==========================================
-     */
-
-    function isLeapYear(year) {
-
-      return (
-        year % 400 === 0 ||
-        (
-          year % 4 === 0 &&
-          year % 100 !== 0
-        )
-      );
-    }
-
-
-    function daysInYear(year) {
-
-      return isLeapYear(year)
-        ? 366
-        : 365;
-    }
-
-
-    /*
-     * ==========================================
-     * ДНЕВНАЯ СТАВКА
-     * ==========================================
-     *
-     * effective:
-     *
-     * Введённые 15% означают именно
-     * эффективные 15% годовых.
-     *
-     * Для года:
-     *
-     * (1 + dailyRate)^365 = 1 + annualRate
-     *
-     * Поэтому:
-     *
-     * dailyRate =
-     * (1 + annualRate)^(1 / 365) - 1
-     *
-     * Для високосного года используется 366.
-     *
-     *
-     * nominal:
-     *
-     * Введённые 15% являются номинальной
-     * годовой ставкой.
-     *
-     * Начисление за каждый день:
-     *
-     * nominalRate / daysInYear
-     */
-
-    function getDailyRate(
-      annualRate,
-      year,
-      rateType
-    ) {
-
-      const days =
-        daysInYear(year);
-
-
-      if (rateType === "effective") {
-
-        return Math.pow(
-          1 + annualRate,
-          1 / days
-        ) - 1;
-
-      }
-
-
-      return annualRate / days;
-    }
-
-
-    /*
-     * ==========================================
-     * ТОЧНЫЙ РАСЧЁТ
-     * ==========================================
-     *
-     * Расчёт выполняется отдельно
-     * для каждого календарного дня.
-     *
-     * Например:
-     *
-     * 2027 -> 365 дней
-     * 2028 -> 366 дней
-     * 2029 -> 365 дней
-     *
-     * Проценты после каждого дня
-     * добавляются к телу вклада.
-     */
-
-    function calculateDeposit(
-      amount,
-      rate,
-      startDateString,
-      endDateString,
-      rateType
-    ) {
-
-      let balance = amount;
-
-      let current =
-        parseDate(startDateString);
-
-      const end =
-        parseDate(endDateString);
-
-
-      let days = 0;
-
-
-      while (
-        current.getTime() <
-        end.getTime()
-      ) {
-
-        const year =
-          current.getUTCFullYear();
-
-
-        const dailyRate =
-          getDailyRate(
-            rate,
-            year,
-            rateType
-          );
-
-
-        balance *=
-          1 + dailyRate;
-
-
-        current =
-          addDays(current, 1);
-
-
-        days++;
-      }
-
-
-      return {
-        total: balance,
-        income: balance - amount,
-        days
-      };
-    }
-
-
-    /*
-     * ==========================================
-     * ТЕКСТОВЫЕ ПОДСКАЗКИ
-     * ==========================================
-     */
-
-    function updateRateDescription() {
-
-      if (
-        rateTypeInput.value ===
-        "effective"
-      ) {
-
-        rateHintElement.textContent =
-          "Введённая ставка — эффективная годовая доходность. " +
-          "Например, 15% означает 15% роста за полный год.";
-
-        calculationInfoElement.innerHTML =
-          "Для каждого календарного года используется 365 или 366 дней. " +
-          "Ежедневная ставка подбирается так, чтобы полный обычный год " +
-          "соответствовал указанной эффективной доходности.";
-
-        return;
-      }
-
-
-      rateHintElement.textContent =
-        "Введённая ставка — номинальная годовая. " +
-        "Проценты ежедневно начисляются по ставке годовая ставка / 365 или / 366.";
-
-      calculationInfoElement.innerHTML =
-        "Номинальная ставка распределяется по фактическим дням каждого года: " +
-        "365 в обычном году и 366 в високосном. " +
-        "После каждого дня проценты капитализируются.";
-    }
-
-
-    /*
-     * ==========================================
-     * РАСЧЁТ И ОТОБРАЖЕНИЕ
-     * ==========================================
-     */
-
-    function calculate() {
-
-      const amount =
-        Number(amountInput.value);
-
-      const rate =
-        Number(rateInput.value);
-
-      const startDate =
-        startDateInput.value;
-
-      const rateType =
-        rateTypeInput.value;
-
-
-      statusElement.textContent = "";
-
-
-      /*
-       * Проверка суммы
-       */
-
-      if (
-        !Number.isFinite(amount) ||
-        amount < 0
-      ) {
-
-        totalElement.textContent = "—";
-        incomeElement.textContent = "—";
-
-        return;
-      }
-
-
-      /*
-       * Проверка ставки
-       */
-
-      if (
-        !Number.isFinite(rate) ||
-        rate < 0
-      ) {
-
-        totalElement.textContent = "—";
-        incomeElement.textContent = "—";
-
-        return;
-      }
-
-
-      /*
-       * Если дата не выбрана
-       */
-
-      if (!startDate) {
-
-        totalElement.textContent =
-          formatMoney(amount);
-
-        incomeElement.textContent =
-          "—";
-
-        daysElement.textContent =
-          "0";
-
-        return;
-      }
-
-
-      /*
-       * Сегодня в Москве
-       */
-
-      const today =
-        getMoscowDateString();
-
-
-      /*
-       * Количество календарных дней
-       */
-
-      const days =
-        getDaysBetween(
-          startDate,
-          today
+        const currentDate = new Date(
+            currentDateString + 'T00:00:00Z'
         );
 
 
-      /*
-       * Будущая дата
-       */
+        // Нельзя открыть вклад в будущем
 
-      if (days < 0) {
-
-        totalElement.textContent =
-          formatMoney(amount);
-
-        incomeElement.textContent =
-          "0,00 ₽";
-
-        daysElement.textContent =
-          "0";
-
-        statusElement.textContent =
-          "Дата открытия не может быть позже текущей даты.";
-
-        return;
-      }
+        if (startDate > currentDate) {
+            showError(
+                'Дата открытия не может быть в будущем.'
+            );
+            return;
+        }
 
 
-      /*
-       * Расчёт
-       */
+        // ==============================
+        // СТАВКА
+        // ==============================
 
-      const result =
-        calculateDeposit(
-          amount,
-          rate / 100,
-          startDate,
-          today,
-          rateType
+        const annualRate =
+            annualRatePercent / 100;
+
+
+        /*
+            Эффективная годовая ставка:
+
+            Чтобы после 12 капитализаций
+            получить ровно указанную годовую
+            эффективную ставку:
+
+            monthlyRate =
+            (1 + annualRate)^(1/12) - 1
+        */
+
+        let monthlyRate;
+
+        if (rateType === 'effective') {
+
+            monthlyRate =
+                Math.pow(
+                    1 + annualRate,
+                    1 / 12
+                ) - 1;
+
+        } else {
+
+            /*
+                Номинальная ставка:
+
+                15% / 12 = 1.25% в месяц
+            */
+
+            monthlyRate =
+                annualRate / 12;
+        }
+
+
+        // ==============================
+        // РАСЧЁТ КАПИТАЛИЗАЦИЙ
+        // ==============================
+
+        let balance = amount;
+
+        let capitalizations = 0;
+
+        let monthIndex = 1;
+
+
+        while (true) {
+
+            const capitalizationDate =
+                getMonthlyCapitalizationDate(
+                    startDate,
+                    monthIndex
+                );
+
+            // Следующая капитализация ещё не наступила
+
+            if (capitalizationDate > currentDate) {
+                break;
+            }
+
+
+            // Начисляем проценты
+
+            balance =
+                balance * (1 + monthlyRate);
+
+            capitalizations++;
+
+            monthIndex++;
+        }
+
+
+        // ==============================
+        // КОЛИЧЕСТВО ДНЕЙ
+        // ==============================
+
+        const millisecondsPerDay =
+            1000 * 60 * 60 * 24;
+
+        const daysPassed = Math.floor(
+            (currentDate - startDate) /
+            millisecondsPerDay
         );
 
 
-      /*
-       * Вывод
-       */
+        // ==============================
+        // ПРИБЫЛЬ
+        // ==============================
 
-      totalElement.textContent =
-        formatMoney(result.total);
-
-
-      incomeElement.textContent =
-        formatRubles(result.income);
+        const profit = balance - amount;
 
 
-      detailAmountElement.textContent =
-        formatRubles(amount);
+        // ==============================
+        // ВЫВОД РЕЗУЛЬТАТА
+        // ==============================
 
+        document.getElementById('finalAmount').textContent =
+            formatMoney(balance) + ' ₽';
 
-      detailRateElement.textContent =
-        String(rate).replace(".", ",") +
-        "%";
+        document.getElementById('initialAmount').textContent =
+            formatMoney(amount) + ' ₽';
 
+        document.getElementById('profit').textContent =
+            formatMoney(profit) + ' ₽';
 
-      daysElement.textContent =
-        integerFormatter.format(result.days);
+        document.getElementById('displayRate').textContent =
+            formatPercent(annualRatePercent);
+
+        document.getElementById('displayRateType').textContent =
+            rateType === 'effective'
+                ? 'Эффективная годовая'
+                : 'Номинальная';
+
+        document.getElementById('displayStartDate').textContent =
+            formatDate(startDate);
+
+        document.getElementById('daysPassed').textContent =
+            daysPassed;
+
+        document.getElementById('capitalizations').textContent =
+            capitalizations;
     }
 
 
-    /*
-     * ==========================================
-     * ИНИЦИАЛИЗАЦИЯ
-     * ==========================================
-     */
+    // ==============================
+    // ОШИБКА
+    // ==============================
 
-    function initialize() {
+    function showError(message) {
 
-      /*
-       * По умолчанию:
-       * сегодняшняя дата Москвы.
-       */
+        const errorElement =
+            document.getElementById('error');
 
-      startDateInput.value =
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+
+
+    // ==============================
+    // ФОРМАТИРОВАНИЕ ДЕНЕГ
+    // ==============================
+
+    function formatMoney(value) {
+
+        return new Intl.NumberFormat('ru-RU', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+    }
+
+
+    // ==============================
+    // ФОРМАТИРОВАНИЕ ПРОЦЕНТА
+    // ==============================
+
+    function formatPercent(value) {
+
+        return new Intl.NumberFormat('ru-RU', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(value) + ' %';
+    }
+
+
+    // ==============================
+    // ФОРМАТ ДАТЫ
+    // ==============================
+
+    function formatDate(date) {
+
+        return new Intl.DateTimeFormat('ru-RU', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            timeZone: 'UTC'
+        }).format(date);
+    }
+
+
+    // ==============================
+    // УСТАНОВКА ДАТЫ ПО УМОЛЧАНИЮ
+    // ==============================
+
+    document.getElementById('startDate').value =
         getMoscowDateString();
 
 
-      updateRateDescription();
-      updateMoscowClock();
-      calculate();
+    // ==============================
+    // АВТОМАТИЧЕСКИЙ ПЕРЕСЧЁТ
+    // ==============================
+
+    document.getElementById('amount')
+        .addEventListener('input', calculateDeposit);
+
+    document.getElementById('rate')
+        .addEventListener('input', calculateDeposit);
+
+    document.getElementById('rateType')
+        .addEventListener('change', calculateDeposit);
+
+    document.getElementById('startDate')
+        .addEventListener('change', calculateDeposit);
 
 
-      /*
-       * Часы.
-       */
+    // Первый расчёт
 
-      setInterval(
-        updateMoscowClock,
-        1000
-      );
+    calculateDeposit();
 
-
-      /*
-       * Пересчёт нужен прежде всего
-       * при смене календарного дня.
-       *
-       * Оставляем обновление раз в секунду,
-       * чтобы после полуночи результат
-       * обновился автоматически.
-       */
-
-      setInterval(
-        calculate,
-        1000
-      );
-    }
-
-
-    /*
-     * ==========================================
-     * СОБЫТИЯ
-     * ==========================================
-     */
-
-    amountInput.addEventListener(
-      "input",
-      calculate
-    );
-
-
-    rateInput.addEventListener(
-      "input",
-      calculate
-    );
-
-
-    rateTypeInput.addEventListener(
-      "change",
-      () => {
-
-        updateRateDescription();
-        calculate();
-
-      }
-    );
-
-
-    startDateInput.addEventListener(
-      "input",
-      calculate
-    );
-
-
-    startDateInput.addEventListener(
-      "change",
-      calculate
-    );
-
-
-    /*
-     * ==========================================
-     * ЗАПУСК
-     * ==========================================
-     */
-
-    initialize();
-
-  </script>
+</script>
 
 </body>
 </html>
-```
